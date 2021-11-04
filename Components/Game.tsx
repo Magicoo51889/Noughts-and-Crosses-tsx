@@ -1,5 +1,4 @@
 import * as React from 'react';
-import { createSecureContext } from 'tls';
 
 import { Board, EMPTY, FILLED_X, FILLED_O } from "./Board";
 
@@ -7,11 +6,11 @@ export interface BoardSquares { squares: number[] }
 export interface GameProps {}
 export interface GameState { history: BoardSquares[], xPlayedLast: boolean, step: number }
 
-class Game extends React.Component<GameProps, GameState> {
+export class Game extends React.Component<GameProps, GameState> {
     constructor() {
-        super();
+        super(Game);
         var squares: number[] = new Array<number>(9);
-        for (var i:number =0; i < 9; ++i) {
+        for (var i:number = 0; i < 9; ++i) {
             squares[i] = EMPTY;
         }
         this.state = {
@@ -31,6 +30,25 @@ class Game extends React.Component<GameProps, GameState> {
             step: step,
         } as GameState);
     }
+
+    handleClick(i: number) {
+        const history = this.state.history;
+        const current = history[this.state.step];
+        const squares = current.squares.slice();
+
+        if (this.calculateWinner(squares) || squares[i] != EMPTY) {
+            return;
+        }
+
+        squares[i] = this.state.xPlayedLast ? FILLED_O: FILLED_X;
+
+        this.setState({
+            history: history.concat([{squares: squares}]),
+            xPlayedLast: !this.state.xPlayedLast,
+            step: history.length
+        });
+    }
+
     
     render() {
         const history = this.state.history;
@@ -85,5 +103,5 @@ class Game extends React.Component<GameProps, GameState> {
             }
         }
         return null;
-        }
     }
+}
